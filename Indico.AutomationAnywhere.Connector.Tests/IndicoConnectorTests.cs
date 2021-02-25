@@ -25,12 +25,12 @@ namespace Indico.AutomationAnywhere.Connector.Tests
         {
             //Arrange
             var sources = new List<string> { "test", "test 2" };
-            var submissionResult = new List<int> { 1, 2 };
+            var submissionIdsToReturn = new List<int> { 1, 2 };
             int workflowId = 3;
 
             _submissionsClientMock
-                .Setup(s => s.CreateAsync(It.IsAny<int>(), sources, default))
-                .ReturnsAsync(submissionResult);
+                .Setup(s => s.CreateAsync(workflowId, sources, default))
+                .ReturnsAsync(submissionIdsToReturn);
 
             //Act
             var result = _connector.WorkflowSubmission(sources.ToArray(), null, workflowId);
@@ -38,8 +38,8 @@ namespace Indico.AutomationAnywhere.Connector.Tests
             //Assert
             _submissionsClientMock.Verify(s => s.CreateAsync(workflowId, sources, default), Times.Once);
 
-            result.Should().HaveCount(submissionResult.Count);
-            result.Should().BeEquivalentTo(submissionResult);
+            result.Should().HaveCount(submissionIdsToReturn.Count);
+            result.Should().BeEquivalentTo(submissionIdsToReturn);
         }
 
         [Test]
@@ -49,12 +49,12 @@ namespace Indico.AutomationAnywhere.Connector.Tests
             var sources = new List<string> { @"https://test.test", @"https://test2.test" };
             var uris = sources.Select(s => new Uri(s)).ToArray();
 
-            var submissionResult = new List<int> { 1, 2 };
+            var submissionIdsToReturn = new List<int> { 1, 2 };
             int workflowId = 3;
 
             _submissionsClientMock
-                .Setup(s => s.CreateAsync(It.IsAny<int>(), uris, default))
-                .ReturnsAsync(submissionResult);
+                .Setup(s => s.CreateAsync(workflowId, uris, default))
+                .ReturnsAsync(submissionIdsToReturn);
 
             //Act
             var result = _connector.WorkflowSubmission(null, sources.ToArray(), workflowId);
@@ -62,8 +62,8 @@ namespace Indico.AutomationAnywhere.Connector.Tests
             //Assert
             _submissionsClientMock.Verify(s => s.CreateAsync(workflowId, uris, default), Times.Once);
 
-            result.Should().HaveCount(submissionResult.Count);
-            result.Should().BeEquivalentTo(submissionResult);
+            result.Should().HaveCount(submissionIdsToReturn.Count);
+            result.Should().BeEquivalentTo(submissionIdsToReturn);
         }
 
         [TestCase(null, null)]
