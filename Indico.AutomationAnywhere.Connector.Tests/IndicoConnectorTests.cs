@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using IndicoV2.Submissions;
+using IndicoV2.Submissions.Models;
 using Moq;
+using Newtonsoft.Json;
 using NUnit.Framework;
+using SubmissionFilterV2 = IndicoV2.Submissions.Models.SubmissionFilter;
 
 namespace Indico.AutomationAnywhere.Connector.Tests
 {
@@ -82,5 +85,34 @@ namespace Indico.AutomationAnywhere.Connector.Tests
             act.Should().Throw<ArgumentException>();
         }
 
+        [TestCase("test", "PROCESSING", "True")]
+        [TestCase("test2", "FAILED", "true")]
+        [TestCase("test3", "COMPLETE", "False")]
+        [TestCase("test4", "PENDING_ADMIN_REVIEW", "false")]
+        [TestCase("test4", "PENDING_REVIEW", "TRUE")]
+        [TestCase("test5", "PENDING_AUTO_REVIEW", "FALSE")]
+
+        public void ListSubmissions_ShouldBuildProperFilterObject(string inputFileName, string status, string retrieved)
+        {
+            //Arrange
+            var statusParsed = Enum.Parse<SubmissionStatus>(status);
+            var retrievedParsed = bool.Parse(retrieved);
+            var limit = 1000;
+
+            _submissionsClientMock.Setup(s =>
+                s.ListAsync(null, null, It.IsAny<SubmissionFilterV2>(), limit, default))
+                    .ReturnsAsync(new List<ISubmission>());
+
+            //Act
+            _connector.ListSubmissions(null, null, inputFileName, status, retrieved, limit);
+
+            //Assert
+            _submissionsClientMock.Verify(s => s.ListAsync(null, null, It.Is<SubmissionFilterV2>
+                (sf =>
+                    sf.InputFilename == inputFileName &&
+                    sf.Status == statusParsed &&
+                    sf.Retrieved == retrievedParsed),
+            limit, default), Times.Once);
+        }
     }
 }

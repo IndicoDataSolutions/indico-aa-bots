@@ -1,6 +1,7 @@
 ﻿using System;
 using IndicoV2;
 using IndicoV2.DataSets;
+using IndicoV2.Submissions;
 using IndicoV2.Workflows;
 using Unity;
 using Unity.Lifetime;
@@ -33,6 +34,7 @@ namespace Indico.AutomationAnywhere.Connector.IntegrationTests.Utils
 
             container.RegisterFactory<IDataSetClient>(c => c.Resolve<V2Client>().DataSets());
             container.RegisterFactory<IWorkflowsClient>(c => c.Resolve<V2Client>().Workflows());
+            container.RegisterFactory<ISubmissionsClient>(c => c.Resolve<V2Client>().Submissions());
 
             return container;
         }
