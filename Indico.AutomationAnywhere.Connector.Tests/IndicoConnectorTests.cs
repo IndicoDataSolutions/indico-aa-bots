@@ -1,9 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using FluentAssertions;
+using IndicoV2.Extensions.SubmissionResult;
 using IndicoV2.Submissions;
 using Moq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
 namespace Indico.AutomationAnywhere.Connector.Tests
@@ -12,12 +16,15 @@ namespace Indico.AutomationAnywhere.Connector.Tests
     {
         private IIndicoConnector _connector;
         private Mock<ISubmissionsClient> _submissionsClientMock;
+        private Mock<ISubmissionResultAwaiter> _submissionResultAwaiterMock;
 
         [SetUp]
         public void Setup()
         {
             _submissionsClientMock = new Mock<ISubmissionsClient>();
-            _connector = new IndicoConnector(_submissionsClientMock.Object);
+            _submissionResultAwaiterMock = new Mock<ISubmissionResultAwaiter>();
+
+            _connector = new IndicoConnector(_submissionsClientMock.Object, _submissionResultAwaiterMock.Object);
         }
 
         [Test]
@@ -80,6 +87,32 @@ namespace Indico.AutomationAnywhere.Connector.Tests
 
             //Assert
             act.Should().Throw<ArgumentException>();
+        }
+
+        [Test]
+        public void SubmissionResult_ShouldGetSubmission()
+        {
+            //Arrange
+            var definition = new { submissionId = 0 };
+
+            const int submissionId = 1;
+            const int checkInterval = 200;
+            const int timeout = 1000;
+            
+            _submissionResultAwaiterMock.Setup(cli => cli.WaitReady(
+                    submissionId,
+                    It.Is<TimeSpan>(ts => (int)ts.TotalMilliseconds == checkInterval),
+                    It.Is<TimeSpan>(ts => (int)ts.TotalMilliseconds == timeout),
+                    CancellationToken.None))
+                .ReturnsAsync(JObject.Parse($"{{\"submissionId\": {submissionId} }}"));
+
+            //Act
+            var submissionResult = _connector.SubmissionResult(submissionId, null, checkInterval, timeout);
+            
+            var deserializedResult = JsonConvert.DeserializeAnonymousType(submissionResult, definition);
+
+            //Assert
+            deserializedResult.submissionId.Should().Be(submissionId);
         }
 
     }
