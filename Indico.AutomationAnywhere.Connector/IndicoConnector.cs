@@ -96,7 +96,7 @@ namespace Indico.AutomationAnywhere.Connector
             {
                 InputFilename = inputFileName,
                 Status = parsedStatus,
-                Retrieved = Convert.ToBoolean(retrieved)
+                Retrieved = parsedRetrieved
             };
 
             var submissions = Task.Run(async () => await _submissionsClient.ListAsync(submissionIds, workflowIds, submissionFilter, limit)).GetAwaiter().GetResult();
