@@ -114,5 +114,25 @@ namespace Indico.AutomationAnywhere.Connector.Tests
                     sf.Retrieved == retrievedParsed),
             limit, default), Times.Once);
         }
+
+        [Test]
+        public void ListSubmissions_ShouldThrowArgumentException_WhenWrongStatusValueProvided()
+        {
+            //Act
+            Action act = () => _connector.ListSubmissions(null, null, null, "WRONG_VALUE", null);
+
+            //Assert
+            act.Should().Throw<ArgumentException>();
+        }
+
+        [Test]
+        public void ListSubmissions_ShouldThrowArgumentException_WhenWrongRetrievedValueProvided()
+        {
+            //Act
+            Action act = () => _connector.ListSubmissions(null, null, null, null, "WRONG_VALUE");
+
+            //Assert
+            act.Should().Throw<ArgumentException>();
+        }
     }
 }
