@@ -125,7 +125,13 @@ namespace Indico.AutomationAnywhere.Connector
 
         private string SubmitReview(int submissionId, string changes, bool rejected, bool? forceComplete)
         {
-            var jobResult = Task.Run(() => SubmitReviewAsync(submissionId, JObject.Parse(changes), rejected, forceComplete))
+            JObject parsedChanges = null;
+            if (!string.IsNullOrEmpty(changes))
+            {
+                parsedChanges = JObject.Parse(changes);
+            }
+
+            var jobResult = Task.Run(() => SubmitReviewAsync(submissionId, parsedChanges, rejected, forceComplete))
                 .GetAwaiter()
                 .GetResult();
 
