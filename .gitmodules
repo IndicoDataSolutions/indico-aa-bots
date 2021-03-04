@@ -1,3 +1,4 @@
 [submodule "indico-client-csharp"]
 	path = indico-client-csharp
 	url = https://github.com/IndicoDataSolutions/indico-client-csharp
+	branch = vd/refactor/new-interface-poc 
