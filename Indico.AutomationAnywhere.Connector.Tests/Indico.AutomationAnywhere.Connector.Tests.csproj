@@ -15,13 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\indico-client-csharp\IndicoV2.Abstractions\IndicoV2.Abstractions.csproj" />
     <ProjectReference Include="..\Indico.AutomationAnywhere.Connector\Indico.AutomationAnywhere.Connector.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="IndicoV2.Abstractions">
-      <HintPath>..\..\indico-client-csharp\IndicoV2.Abstractions\bin\Debug\netstandard2.0\IndicoV2.Abstractions.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 </Project>
