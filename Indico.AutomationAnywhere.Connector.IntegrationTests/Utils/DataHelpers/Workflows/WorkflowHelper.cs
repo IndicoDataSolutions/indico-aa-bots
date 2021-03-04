@@ -17,7 +17,7 @@ namespace IndicoV2.IntegrationTests.Utils.DataHelpers.Workflows
             _workflows = workflows;
         }
 
-        public async Task<IWorkflow> GetAnyWorkflow()
+        public async Task<IWorkflow> GetAny()
         {
             var dataSets = await _dataSets.ListAsync();
             var workflows = await _workflows.ListAsync(dataSets.First().Id);
