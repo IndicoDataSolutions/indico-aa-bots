@@ -11,7 +11,7 @@ namespace Indico.AutomationAnywhere.Connector.IntegrationTests.IndicoConnectorTe
         public async Task SubmissionResult_ShouldReturnJobResult()
         {
             // Arrange
-            var submissionId = (await _dataHelper.Submissions().GetAnyAsync()).Id;
+            var submissionId = (await _dataHelper.Submissions().GetAny()).Id;
 
             // Act
             var submissionResult = _connector.SubmissionResult(submissionId, null);

@@ -12,7 +12,7 @@ namespace Indico.AutomationAnywhere.Connector.IntegrationTests.IndicoConnectorTe
         {
             //Arrange
             var sources = new [] { _dataHelper.Files().GetSampleFilePath() };
-            int workflowId = (await _dataHelper.Workflows().GetAnyWorkflow()).Id;
+            int workflowId = (await _dataHelper.Workflows().GetAny()).Id;
 
             //Act
             var result = _connector.WorkflowSubmission(sources, null, workflowId);
@@ -27,7 +27,7 @@ namespace Indico.AutomationAnywhere.Connector.IntegrationTests.IndicoConnectorTe
         {
             //Arrange
             var sources = new[] { _dataHelper.Files().GetSampleUri() };
-            int workflowId = (await _dataHelper.Workflows().GetAnyWorkflow()).Id;
+            int workflowId = (await _dataHelper.Workflows().GetAny()).Id;
 
             //Act
             var result = _connector.WorkflowSubmission(null, sources, workflowId);

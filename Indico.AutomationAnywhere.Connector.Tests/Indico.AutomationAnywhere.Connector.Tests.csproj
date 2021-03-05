@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\indico-client-csharp\IndicoV2.Abstractions\IndicoV2.Abstractions.csproj" />
     <ProjectReference Include="..\Indico.AutomationAnywhere.Connector\Indico.AutomationAnywhere.Connector.csproj" />
   </ItemGroup>
 

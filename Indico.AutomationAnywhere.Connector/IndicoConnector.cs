@@ -3,11 +3,14 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using IndicoV2;
+using IndicoV2.Extensions.Jobs;
+using IndicoV2.Reviews;
 using IndicoV2.Extensions.SubmissionResult;
 using IndicoV2.Submissions;
 using IndicoV2.Submissions.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Linq;
 
 namespace Indico.AutomationAnywhere.Connector
 {
@@ -15,6 +18,8 @@ namespace Indico.AutomationAnywhere.Connector
     {
         private ISubmissionsClient _submissionsClient;
         private ISubmissionResultAwaiter _submissionResultAwaiter;
+        private IReviewsClient _reviewsClient;
+        private IJobAwaiter _jobAwaiter;
 
         private TimeSpan _checkInterval = TimeSpan.FromSeconds(1);
         private TimeSpan _timeout = TimeSpan.FromSeconds(60);
@@ -28,10 +33,12 @@ namespace Indico.AutomationAnywhere.Connector
 
         }
 
-        public IndicoConnector(ISubmissionsClient submissionsClient, ISubmissionResultAwaiter submissionResultAwaiter)
+        public IndicoConnector(ISubmissionsClient submissionsClient, ISubmissionResultAwaiter submissionResultAwaiter, IReviewsClient reviewsClient, IJobAwaiter jobAwaiter)
         {
             _submissionsClient = submissionsClient;
             _submissionResultAwaiter = submissionResultAwaiter;
+            _reviewsClient = reviewsClient;
+            _jobAwaiter = jobAwaiter;
         }
 
         public void Init(string token, string uri)
@@ -39,6 +46,8 @@ namespace Indico.AutomationAnywhere.Connector
             var client = new IndicoV2.IndicoClient(token, new Uri(uri));
             _submissionsClient = client.Submissions();
             _submissionResultAwaiter = client.GetSubmissionResultAwaiter();
+            _reviewsClient = client.Reviews();
+            _jobAwaiter = client.JobAwaiter();
         }
 
         public int[] WorkflowSubmission(string[] filepaths, string[] uris, int workflowId)
@@ -145,7 +154,35 @@ namespace Indico.AutomationAnywhere.Connector
                 return result.ToString();
             }
         }
-        
 
+        public string SubmitReview(int submissionId, string changes, bool rejected) => SubmitReview(submissionId, changes, rejected, null);
+
+        public string SubmitReview(int submissionId, string changes, bool rejected, bool forceComplete) => SubmitReview(submissionId, changes, rejected, (bool?)forceComplete);
+
+        private string SubmitReview(int submissionId, string changes, bool rejected, bool? forceComplete)
+        {
+            JObject parsedChanges = null;
+            if (!string.IsNullOrEmpty(changes))
+            {
+                parsedChanges = JObject.Parse(changes);
+            }
+
+            var jobResult = Task.Run(() => SubmitReviewAsync(submissionId, parsedChanges, rejected, forceComplete))
+                .GetAwaiter()
+                .GetResult();
+
+            return jobResult.ToString();
+        }
+
+        private async Task<JObject> SubmitReviewAsync(int submissionId, JObject changes, bool rejected, bool? forceComplete)
+        {
+            using (var tokenSource = new CancellationTokenSource(_timeout))
+            {
+                var jobId = await _reviewsClient.SubmitReviewAsync(submissionId, changes, rejected, forceComplete, tokenSource.Token);
+                var jobResult = (JObject)await _jobAwaiter.WaitReadyAsync(jobId, _checkInterval, tokenSource.Token);
+
+                return jobResult;
+            }
+        }
     }
 }

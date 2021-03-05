@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using FluentAssertions;
+using IndicoV2.Extensions.Jobs;
+using IndicoV2.Reviews;
 using IndicoV2.Extensions.SubmissionResult;
 using IndicoV2.Submissions;
 using IndicoV2.Submissions.Models;
@@ -19,14 +21,17 @@ namespace Indico.AutomationAnywhere.Connector.Tests
         private IIndicoConnector _connector;
         private Mock<ISubmissionsClient> _submissionsClientMock;
         private Mock<ISubmissionResultAwaiter> _submissionResultAwaiterMock;
+        private Mock<IReviewsClient> _reviewsClientMock;
+        private Mock<IJobAwaiter> _jobAwaiterMock;
 
         [SetUp]
         public void Setup()
         {
             _submissionsClientMock = new Mock<ISubmissionsClient>();
             _submissionResultAwaiterMock = new Mock<ISubmissionResultAwaiter>();
-
-            _connector = new IndicoConnector(_submissionsClientMock.Object, _submissionResultAwaiterMock.Object);
+            _reviewsClientMock = new Mock<IReviewsClient>();
+            _jobAwaiterMock = new Mock<IJobAwaiter>();
+            _connector = new IndicoConnector(_submissionsClientMock.Object, _submissionResultAwaiterMock.Object, _reviewsClientMock.Object, _jobAwaiterMock.Object);
         }
 
         [Test]
@@ -196,6 +201,38 @@ namespace Indico.AutomationAnywhere.Connector.Tests
 
             //Assert
             act.Should().Throw<ArgumentException>().WithMessage("Wrong checkStatus value. Please pass one of valid values for Submission Status.");
+        }
+
+        [Theory]
+        public void SubmitReview_ShouldCallReviewsClient(bool rejected, bool? forceComplete)
+        {
+            // Arrange
+            var submissionId = 1;
+            var changes = JObject.FromObject(new { name = "test", id = 12, boolCol = true });
+            var changesJson = changes.ToString();
+            const int idValue = 2;
+
+            _jobAwaiterMock.Setup(cli =>
+                    cli.WaitReadyAsync(It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(JToken.FromObject(new { id = idValue }));
+
+            // Act
+            var result = forceComplete.HasValue
+                ? _connector.SubmitReview(submissionId, changesJson, rejected, forceComplete.Value)
+                : _connector.SubmitReview(submissionId, changesJson, rejected);
+
+            var deserializedResult = JObject.Parse(result);
+
+            // Assert
+            _reviewsClientMock.Verify(cli => cli.SubmitReviewAsync(
+                submissionId,
+                It.Is<JObject>(actualChanges => JToken.DeepEquals(actualChanges, changes)),
+                rejected,
+                forceComplete,
+                It.IsAny<CancellationToken>()),
+                Times.Once);
+            result.Should().NotBeNull();
+            deserializedResult.Value<int>("id").Should().Be(idValue);
         }
     }
 }

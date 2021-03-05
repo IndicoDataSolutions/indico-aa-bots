@@ -12,7 +12,7 @@ namespace Indico.AutomationAnywhere.Connector.IntegrationTests.IndicoConnectorTe
         public async Task ListSubmissions_ShouldReturnProperSubmission_WhenIdProvided()
         {
             //Arrange
-            var submissionId = (await _dataHelper.Submissions().GetAnyAsync()).Id;
+            var submissionId = (await _dataHelper.Submissions().GetAny()).Id;
             var definition = new[] { new { Id = 0 } };
 
             //Act
@@ -28,7 +28,7 @@ namespace Indico.AutomationAnywhere.Connector.IntegrationTests.IndicoConnectorTe
         public async Task ListSubmissions_ShouldReturnProperSubmission_WhenWorkflowIdProvided()
         {
             //Arrange
-            var workflowId = (await _dataHelper.Workflows().GetAnyWorkflow()).Id;
+            var workflowId = (await _dataHelper.Workflows().GetAny()).Id;
             var definition = new[] { new { WorkflowId = 0 } };
 
             //Act
