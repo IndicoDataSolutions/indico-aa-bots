@@ -14,7 +14,7 @@ namespace Indico.AutomationAnywhere.Connector.IntegrationTests.IndicoConnectorTe
             var submissionId = (await _dataHelper.Submissions().GetAnyAsync()).Id;
 
             // Act
-            var submissionResult = _connector.SubmissionResult(submissionId, null, 200, 5000);
+            var submissionResult = _connector.SubmissionResult(submissionId, null);
             var deserialized = JObject.Parse(submissionResult);
 
             // Assert
