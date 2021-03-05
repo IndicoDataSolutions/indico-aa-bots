@@ -11,11 +11,6 @@ namespace Indico.AutomationAnywhere.Connector.IntegrationTests.Utils.DataHelpers
 
         public SubmissionHelper(ISubmissionsClient submissions) => _submissions = submissions;
 
-        public async Task<ISubmission> GetAnySubmission()
-        {
-            var submissions = await _submissions.ListAsync(null, null, null, 1);
-
-            return submissions.First();
-        }
+        public async Task<ISubmission> GetAnyAsync() => (await _submissions.ListAsync(null, null, null, 1)).Single();
     }
 }

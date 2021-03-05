@@ -12,7 +12,7 @@ namespace Indico.AutomationAnywhere.Connector.IntegrationTests.IndicoConnectorTe
         public async Task ListSubmissions_ShouldReturnProperSubmission_WhenIdProvided()
         {
             //Arrange
-            var submissionId = (await _dataHelper.Submissions().GetAnySubmission()).Id;
+            var submissionId = (await _dataHelper.Submissions().GetAnyAsync()).Id;
             var definition = new[] { new { Id = 0 } };
 
             //Act

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using IndicoV2.Submissions.Models;
 
 namespace Indico.AutomationAnywhere.Connector
 {
@@ -24,7 +23,7 @@ namespace Indico.AutomationAnywhere.Connector
         /// <returns>New submissions <c><see cref="int">ids</see></c>.</returns>
         int[] WorkflowSubmission(string[] filepaths, string[] uris, int workflowId);
 
-        /// <summary>
+        ///<summary>
         /// Method lists submissions.
         /// </summary>
         /// <param name="submissionIds">Array containing ids of the submissions to list.</param>
@@ -36,5 +35,12 @@ namespace Indico.AutomationAnywhere.Connector
         /// <returns>Submissions list in form of JSON.</returns>
         string ListSubmissions(int[] submissionIds, int[] workflowIds, string inputFileName, string status, string retrieved, int limit = 1000);
 
+        /// <summary>
+        /// Method gets result of the submission.
+        /// </summary>
+        /// <param name="submissionId">Id of the submission to get.</param>
+        /// <param name="checkStatus">Optional parameter that causes wait until submissions is in certain state.</param>
+        /// <returns>The result of submission in form of a JSON.</returns>
+        string SubmissionResult(int submissionId, string checkStatus);
     }
 }
