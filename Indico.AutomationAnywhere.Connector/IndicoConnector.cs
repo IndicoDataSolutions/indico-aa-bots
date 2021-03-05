@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using IndicoV2;
 using IndicoV2.Extensions.SubmissionResult;
@@ -12,6 +13,10 @@ namespace Indico.AutomationAnywhere.Connector
     {
         private ISubmissionsClient _submissionsClient;
         private ISubmissionResultAwaiter _submissionResultAwaiter;
+
+        private TimeSpan _checkInterval = TimeSpan.FromSeconds(1);
+        private TimeSpan _timeout = TimeSpan.FromSeconds(60);
+
 
         /// <summary>
         /// Constructor for AutomationAnywhere
@@ -62,24 +67,35 @@ namespace Indico.AutomationAnywhere.Connector
             return Task.Run(async () => await _submissionsClient.CreateAsync(workflowId, uris.Select(u => new Uri(u)))).GetAwaiter().GetResult().ToArray();
         }
 
-        public string SubmissionResult(int submissionId, string checkStatus, int checkIntervalMilliseconds, int timeoutMilliseconds)
+        public string SubmissionResult(int submissionId, string checkStatus)
         {
-            var awaitStatus = string.IsNullOrWhiteSpace(checkStatus)
-                ? (SubmissionStatus?)null
-                : (SubmissionStatus)Enum.Parse(typeof(SubmissionStatus), checkStatus);
+            SubmissionStatus? awaitStatus = null;
 
-            var checkInterval = TimeSpan.FromMilliseconds(checkIntervalMilliseconds);
-            var timeout = TimeSpan.FromMilliseconds(timeoutMilliseconds);
+            if (!string.IsNullOrWhiteSpace(checkStatus))
+            {
+                if (Enum.TryParse(checkStatus, out SubmissionStatus parsedStatus))
+                {
+                    awaitStatus = parsedStatus;
+                }
+                else
+                {
+                    throw new ArgumentException("Wrong checkStatus value. Please pass one of valid values for Submission Status.");
+                }
+            }
 
-            var getResult = awaitStatus == null
-                ? Task.Run(async () => await _submissionResultAwaiter.WaitReady(submissionId, checkInterval, timeout))
-                : Task.Run(async () => await _submissionResultAwaiter.WaitReady(submissionId, awaitStatus.Value, checkInterval, timeout));
+            using (var timeoutTokenSource = new CancellationTokenSource(_timeout))
+            {
+                var cancellationToken = timeoutTokenSource.Token;
+                var getResult = awaitStatus == null
+                ? Task.Run(async () => await _submissionResultAwaiter.WaitReady(submissionId, _checkInterval, cancellationToken))
+                : Task.Run(async () => await _submissionResultAwaiter.WaitReady(submissionId, awaitStatus.Value, _checkInterval, cancellationToken));
 
-            var result = getResult
-                .GetAwaiter()
-                .GetResult();
+                var result = getResult
+                    .GetAwaiter()
+                    .GetResult();
 
-            return result.ToString();
+                return result.ToString();
+            }
         }
     }
 }

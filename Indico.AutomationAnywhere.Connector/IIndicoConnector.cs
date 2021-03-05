@@ -28,9 +28,7 @@ namespace Indico.AutomationAnywhere.Connector
         /// </summary>
         /// <param name="submissionId">Id of the submission to get.</param>
         /// <param name="checkStatus">Optional parameter that causes wait until submissions is in certain state.</param>
-        /// <param name="checkIntervalMilliseconds">Interval in miliseconds of checking submission status.</param>
-        /// <param name="timeoutMilliseconds">Time in miliseconds before timeout of the function.</param>
         /// <returns>The result of submission in form of a JSON.</returns>
-        string SubmissionResult(int submissionId, string checkStatus, int checkIntervalMilliseconds, int timeoutMilliseconds);
+        string SubmissionResult(int submissionId, string checkStatus);
     }
 }
