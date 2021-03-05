@@ -22,12 +22,7 @@ namespace Indico.AutomationAnywhere.Connector.IntegrationTests.Utils.DataHelpers
             _workflows = workflows;
         }
 
-        public async Task<ISubmission> GetAny()
-        {
-            var submissions = await _submissions.ListAsync(null, null, null, 1);
-
-            return submissions.First();
-        }
+        public async Task<ISubmission> GetAny() => (await _submissions.ListAsync(null, null, null, 1)).Single();
 
         public async Task<int> GetNewId()
         {

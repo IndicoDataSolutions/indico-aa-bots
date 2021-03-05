@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using IndicoV2;
 using IndicoV2.Extensions.Jobs;
 using IndicoV2.Reviews;
+using IndicoV2.Extensions.SubmissionResult;
 using IndicoV2.Submissions;
 using IndicoV2.Submissions.Models;
 using Newtonsoft.Json;
@@ -16,11 +17,13 @@ namespace Indico.AutomationAnywhere.Connector
     public class IndicoConnector : IIndicoConnector
     {
         private ISubmissionsClient _submissionsClient;
+        private ISubmissionResultAwaiter _submissionResultAwaiter;
         private IReviewsClient _reviewsClient;
         private IJobAwaiter _jobAwaiter;
 
         private TimeSpan _checkInterval = TimeSpan.FromSeconds(1);
         private TimeSpan _timeout = TimeSpan.FromSeconds(60);
+
 
         /// <summary>
         /// Constructor for AutomationAnywhere
@@ -30,9 +33,10 @@ namespace Indico.AutomationAnywhere.Connector
 
         }
 
-        public IndicoConnector(ISubmissionsClient submissionsClient, IReviewsClient reviewsClient, IJobAwaiter jobAwaiter)
+        public IndicoConnector(ISubmissionsClient submissionsClient, ISubmissionResultAwaiter submissionResultAwaiter, IReviewsClient reviewsClient, IJobAwaiter jobAwaiter)
         {
             _submissionsClient = submissionsClient;
+            _submissionResultAwaiter = submissionResultAwaiter;
             _reviewsClient = reviewsClient;
             _jobAwaiter = jobAwaiter;
         }
@@ -41,6 +45,7 @@ namespace Indico.AutomationAnywhere.Connector
         {
             var client = new IndicoV2.IndicoClient(token, new Uri(uri));
             _submissionsClient = client.Submissions();
+            _submissionResultAwaiter = client.GetSubmissionResultAwaiter();
             _reviewsClient = client.Reviews();
             _jobAwaiter = client.JobAwaiter();
         }
@@ -117,6 +122,37 @@ namespace Indico.AutomationAnywhere.Connector
             var submissions = Task.Run(async () => await _submissionsClient.ListAsync(submissionIds, workflowIds, submissionFilter, limit)).GetAwaiter().GetResult();
 
             return JsonConvert.SerializeObject(submissions, new StringEnumConverter());
+        }
+
+        public string SubmissionResult(int submissionId, string checkStatus)
+        {
+            SubmissionStatus? awaitStatus = null;
+
+            if (!string.IsNullOrWhiteSpace(checkStatus))
+            {
+                if (Enum.TryParse(checkStatus, out SubmissionStatus parsedStatus))
+                {
+                    awaitStatus = parsedStatus;
+                }
+                else
+                {
+                    throw new ArgumentException("Wrong checkStatus value. Please pass one of valid values for Submission Status.");
+                }
+            }
+
+            using (var timeoutTokenSource = new CancellationTokenSource(_timeout))
+            {
+                var cancellationToken = timeoutTokenSource.Token;
+                var getResult = awaitStatus == null
+                ? Task.Run(async () => await _submissionResultAwaiter.WaitReady(submissionId, _checkInterval, cancellationToken))
+                : Task.Run(async () => await _submissionResultAwaiter.WaitReady(submissionId, awaitStatus.Value, _checkInterval, cancellationToken));
+
+                var result = getResult
+                    .GetAwaiter()
+                    .GetResult();
+
+                return result.ToString();
+            }
         }
 
         public string SubmitReview(int submissionId, string changes, bool rejected) => SubmitReview(submissionId, changes, rejected, null);
