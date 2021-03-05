@@ -5,6 +5,7 @@ using System.Threading;
 using FluentAssertions;
 using IndicoV2.Extensions.SubmissionResult;
 using IndicoV2.Submissions;
+using IndicoV2.Submissions.Models;
 using Moq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -96,23 +97,55 @@ namespace Indico.AutomationAnywhere.Connector.Tests
             var definition = new { submissionId = 0 };
 
             const int submissionId = 1;
-            const int checkInterval = 200;
-            const int timeout = 1000;
+            const int checkInterval = 1000;
             
             _submissionResultAwaiterMock.Setup(cli => cli.WaitReady(
                     submissionId,
                     It.Is<TimeSpan>(ts => (int)ts.TotalMilliseconds == checkInterval),
-                    It.Is<TimeSpan>(ts => (int)ts.TotalMilliseconds == timeout),
-                    CancellationToken.None))
+                    It.IsAny<CancellationToken>()))
                 .ReturnsAsync(JObject.Parse($"{{\"submissionId\": {submissionId} }}"));
 
             //Act
-            var submissionResult = _connector.SubmissionResult(submissionId, null, checkInterval, timeout);
-            
+            var submissionResult = _connector.SubmissionResult(submissionId, null);
             var deserializedResult = JsonConvert.DeserializeAnonymousType(submissionResult, definition);
 
             //Assert
             deserializedResult.submissionId.Should().Be(submissionId);
+        }
+
+        [Theory]
+        public void SubmissionResult_ShouldProperlyParseSubmissionStatus(SubmissionStatus status)
+        {
+            //Arrange
+            var serializedStatus = status.ToString();
+
+            _submissionResultAwaiterMock.Setup(cli => cli.WaitReady(
+                    It.IsAny<int>(),
+                    status,
+                    It.IsAny<TimeSpan>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(JObject.Parse($"{{\"submissionId\": {0} }}"));
+
+            //Act
+            var submissionResult = _connector.SubmissionResult(0, serializedStatus);
+
+            //Assert
+            _submissionResultAwaiterMock.Verify(s => s.WaitReady(
+                It.IsAny<int>(), 
+                It.Is<SubmissionStatus>(ss => ss == status), 
+                It.IsAny<TimeSpan>(), 
+                It.IsAny<CancellationToken>()), 
+                    Times.Once);
+        }
+
+        [Test]
+        public void SubmissionResult_ShouldThrowArgumentException_WhenAwaitStatusWrong()
+        {
+            //Act
+            Action act = () => _connector.SubmissionResult(default, "INVALID_VALUE");
+
+            //Assert
+            act.Should().Throw<ArgumentException>().WithMessage("Wrong checkStatus value. Please pass one of valid values for Submission Status.");
         }
 
     }
