@@ -10,6 +10,7 @@ using Moq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
+using SubmissionFilterV2 = IndicoV2.Submissions.Models.SubmissionFilter;
 
 namespace Indico.AutomationAnywhere.Connector.Tests
 {
@@ -90,6 +91,55 @@ namespace Indico.AutomationAnywhere.Connector.Tests
             act.Should().Throw<ArgumentException>();
         }
 
+        [TestCase("test", "PROCESSING", "True")]
+        [TestCase("test2", "FAILED", "true")]
+        [TestCase("test3", "COMPLETE", "False")]
+        [TestCase("test4", "PENDING_ADMIN_REVIEW", "false")]
+        [TestCase("test4", "PENDING_REVIEW", "TRUE")]
+        [TestCase("test5", "PENDING_AUTO_REVIEW", "FALSE")]
+        public void ListSubmissions_ShouldBuildProperFilterObject(string inputFileName, string status, string retrieved)
+        {
+            //Arrange
+            var statusParsed = Enum.Parse<SubmissionStatus>(status);
+            var retrievedParsed = bool.Parse(retrieved);
+            var limit = 1000;
+
+            _submissionsClientMock.Setup(s =>
+                s.ListAsync(null, null, It.IsAny<SubmissionFilterV2>(), limit, default))
+                    .ReturnsAsync(new List<ISubmission>());
+
+            //Act
+            _connector.ListSubmissions(null, null, inputFileName, status, retrieved, limit);
+
+            //Assert
+            _submissionsClientMock.Verify(s => s.ListAsync(null, null, It.Is<SubmissionFilterV2>
+                (sf =>
+                    sf.InputFilename == inputFileName &&
+                    sf.Status == statusParsed &&
+                    sf.Retrieved == retrievedParsed),
+            limit, default), Times.Once);
+        }
+
+        [Test]
+        public void ListSubmissions_ShouldThrowArgumentException_WhenWrongStatusValueProvided()
+        {
+            //Act
+            Action act = () => _connector.ListSubmissions(null, null, null, "WRONG_VALUE", null);
+
+            //Assert
+            act.Should().Throw<ArgumentException>();
+        }
+
+        [Test]
+        public void ListSubmissions_ShouldThrowArgumentException_WhenWrongRetrievedValueProvided()
+        {
+            //Act
+            Action act = () => _connector.ListSubmissions(null, null, null, null, "WRONG_VALUE");
+
+            //Assert
+            act.Should().Throw<ArgumentException>();
+        }
+
         [Test]
         public void SubmissionResult_ShouldGetSubmission()
         {
@@ -147,6 +197,5 @@ namespace Indico.AutomationAnywhere.Connector.Tests
             //Assert
             act.Should().Throw<ArgumentException>().WithMessage("Wrong checkStatus value. Please pass one of valid values for Submission Status.");
         }
-
     }
 }

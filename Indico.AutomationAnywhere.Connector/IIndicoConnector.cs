@@ -23,6 +23,18 @@ namespace Indico.AutomationAnywhere.Connector
         /// <returns>New submissions <c><see cref="int">ids</see></c>.</returns>
         int[] WorkflowSubmission(string[] filepaths, string[] uris, int workflowId);
 
+        ///<summary>
+        /// Method lists submissions.
+        /// </summary>
+        /// <param name="submissionIds">Array containing ids of the submissions to list.</param>
+        /// <param name="workflowIds">Array containing ids of workflows to include submissions from.</param>
+        /// <param name="inputFileName">File name used to filter result.</param>
+        /// <param name="status">Submission status used to filter result.</param>
+        /// <param name="retrieved">If submission retrieved, used to filter result.</param>
+        /// <param name="limit">Submission count limit. Default value is 1000.</param>
+        /// <returns>Submissions list in form of JSON.</returns>
+        string ListSubmissions(int[] submissionIds, int[] workflowIds, string inputFileName, string status, string retrieved, int limit = 1000);
+
         /// <summary>
         /// Method gets result of the submission.
         /// </summary>
