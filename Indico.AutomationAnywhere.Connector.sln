@@ -10,19 +10,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indico.AutomationAnywhere.Connector.Tests", "Indico.AutomationAnywhere.Connector.Tests\Indico.AutomationAnywhere.Connector.Tests.csproj", "{DBF97A42-DF08-48EF-BE7E-E32427BD5775}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indico.AutomationAnywhere.Connector.Tests", "Indico.AutomationAnywhere.Connector.Tests\Indico.AutomationAnywhere.Connector.Tests.csproj", "{DBF97A42-DF08-48EF-BE7E-E32427BD5775}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indico.AutomationAnywhere.Connector.IntegrationTests", "Indico.AutomationAnywhere.Connector.IntegrationTests\Indico.AutomationAnywhere.Connector.IntegrationTests.csproj", "{1BB80DEA-9AC5-4BD1-B1E6-9EC0CC531EB0}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ClientLib", "ClientLib", "{7C88AA48-B450-4BBE-8BBE-B762AFB5C570}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IndicoV2", "indico-client-csharp\IndicoV2\IndicoV2.csproj", "{4326C4D7-501C-4856-A4A0-9A53B65FA246}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IndicoV2.Abstractions", "indico-client-csharp\IndicoV2.Abstractions\IndicoV2.Abstractions.csproj", "{BD9F1B4B-E30B-4715-97E4-5DD2C9992025}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indico", "indico-client-csharp\Indico\Indico.csproj", "{6069FA17-2E0B-42F8-9CA1-37036AC0D453}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IndicoV2.V1Adapters", "indico-client-csharp\IndicoV2.V1Adapters\IndicoV2.V1Adapters.csproj", "{FE9CD6E4-BFF8-4910-8B88-180AEF1CC250}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indico.AutomationAnywhere.Connector.IntegrationTests", "Indico.AutomationAnywhere.Connector.IntegrationTests\Indico.AutomationAnywhere.Connector.IntegrationTests.csproj", "{1BB80DEA-9AC5-4BD1-B1E6-9EC0CC531EB0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,31 +32,9 @@ Global
 		{1BB80DEA-9AC5-4BD1-B1E6-9EC0CC531EB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1BB80DEA-9AC5-4BD1-B1E6-9EC0CC531EB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1BB80DEA-9AC5-4BD1-B1E6-9EC0CC531EB0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4326C4D7-501C-4856-A4A0-9A53B65FA246}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4326C4D7-501C-4856-A4A0-9A53B65FA246}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4326C4D7-501C-4856-A4A0-9A53B65FA246}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4326C4D7-501C-4856-A4A0-9A53B65FA246}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BD9F1B4B-E30B-4715-97E4-5DD2C9992025}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BD9F1B4B-E30B-4715-97E4-5DD2C9992025}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BD9F1B4B-E30B-4715-97E4-5DD2C9992025}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BD9F1B4B-E30B-4715-97E4-5DD2C9992025}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6069FA17-2E0B-42F8-9CA1-37036AC0D453}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6069FA17-2E0B-42F8-9CA1-37036AC0D453}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6069FA17-2E0B-42F8-9CA1-37036AC0D453}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6069FA17-2E0B-42F8-9CA1-37036AC0D453}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FE9CD6E4-BFF8-4910-8B88-180AEF1CC250}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FE9CD6E4-BFF8-4910-8B88-180AEF1CC250}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FE9CD6E4-BFF8-4910-8B88-180AEF1CC250}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FE9CD6E4-BFF8-4910-8B88-180AEF1CC250}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{4326C4D7-501C-4856-A4A0-9A53B65FA246} = {7C88AA48-B450-4BBE-8BBE-B762AFB5C570}
-		{BD9F1B4B-E30B-4715-97E4-5DD2C9992025} = {7C88AA48-B450-4BBE-8BBE-B762AFB5C570}
-		{6069FA17-2E0B-42F8-9CA1-37036AC0D453} = {7C88AA48-B450-4BBE-8BBE-B762AFB5C570}
-		{FE9CD6E4-BFF8-4910-8B88-180AEF1CC250} = {7C88AA48-B450-4BBE-8BBE-B762AFB5C570}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8D561891-4511-45E7-9668-1D94D0DA1E67}
