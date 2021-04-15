@@ -43,6 +43,16 @@ namespace Indico.AutomationAnywhere.Connector
 
         public void Init(string token, string uri)
         {
+            if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(uri))
+            {
+                throw new ArgumentNullException("Provide token and host parameters.");
+            }
+
+            if (!uri.StartsWith("http"))
+            {
+                throw new ArgumentException("Please provide valid host url that starts with http or https");
+            }
+
             var client = new IndicoV2.IndicoClient(token, new Uri(uri));
             _submissionsClient = client.Submissions();
             _submissionResultAwaiter = client.GetSubmissionResultAwaiter();
