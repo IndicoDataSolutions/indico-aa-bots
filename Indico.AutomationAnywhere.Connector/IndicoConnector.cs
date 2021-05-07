@@ -80,12 +80,20 @@ namespace Indico.AutomationAnywhere.Connector
                 throw new ArgumentException("Provided uris and filepaths. Pass only one of the parameters.");
             }
 
-            if (filepathsProvided)
+            try
             {
-                return Task.Run(async () => await _submissionsClient.CreateAsync(workflowId, filepaths)).GetAwaiter().GetResult().ToArray();
-            }
+                if (filepathsProvided)
+                {
+                    return Task.Run(async () => await _submissionsClient.CreateAsync(workflowId, filepaths)).GetAwaiter().GetResult().ToArray();
+                }
 
-            return Task.Run(async () => await _submissionsClient.CreateAsync(workflowId, uris.Select(u => new Uri(u)))).GetAwaiter().GetResult().ToArray();
+                return Task.Run(async () => await _submissionsClient.CreateAsync(workflowId, uris.Select(u => new Uri(u)))).GetAwaiter().GetResult().ToArray();
+            }
+            catch (System.Exception ex)
+            {
+                //AA doesn't understand custom exception types and the only important thing is message, so method catches all exceptions and throw new generic one with the correct message.
+                throw new System.Exception(ex.Message);
+            }
         }
 
         public string ListSubmissions(int[] submissionIds, int[] workflowIds, string inputFileName, string status, string retrieved, int limit = 1000)
@@ -129,9 +137,18 @@ namespace Indico.AutomationAnywhere.Connector
                 Retrieved = parsedRetrieved
             };
 
-            var submissions = Task.Run(async () => await _submissionsClient.ListAsync(submissionIds, workflowIds, submissionFilter, limit)).GetAwaiter().GetResult();
+            try
+            {
+                var submissions = Task.Run(async () => await _submissionsClient.ListAsync(submissionIds, workflowIds, submissionFilter, limit)).GetAwaiter().GetResult();
 
-            return JsonConvert.SerializeObject(submissions, new StringEnumConverter());
+                return JsonConvert.SerializeObject(submissions, new StringEnumConverter());
+
+            }
+            catch (System.Exception ex)
+            {
+                //AA doesn't understand custom exception types and the only important thing is message, so method catches all exceptions and throw new generic one with the correct message.
+                throw new System.Exception(ex.Message);
+            }
         }
 
         public string SubmissionResult(int submissionId, string checkStatus)
@@ -153,15 +170,24 @@ namespace Indico.AutomationAnywhere.Connector
             using (var timeoutTokenSource = new CancellationTokenSource(_timeout))
             {
                 var cancellationToken = timeoutTokenSource.Token;
-                var getResult = awaitStatus == null
-                ? Task.Run(async () => await _submissionResultAwaiter.WaitReady(submissionId, _checkInterval, cancellationToken))
-                : Task.Run(async () => await _submissionResultAwaiter.WaitReady(submissionId, awaitStatus.Value, _checkInterval, cancellationToken));
+                
+                try
+                {
+                    var getResult = awaitStatus == null
+                            ? Task.Run(async () => await _submissionResultAwaiter.WaitReady(submissionId, _checkInterval, cancellationToken))
+                            : Task.Run(async () => await _submissionResultAwaiter.WaitReady(submissionId, awaitStatus.Value, _checkInterval, cancellationToken));
 
-                var result = getResult
-                    .GetAwaiter()
-                    .GetResult();
+                    var result = getResult
+                        .GetAwaiter()
+                        .GetResult();
 
-                return result.ToString();
+                    return result.ToString();
+                }
+                catch (System.Exception ex)
+                {
+                    //AA doesn't understand custom exception types and the only important thing is message, so method catches all exceptions and throw new generic one with the correct message.
+                    throw new System.Exception(ex.Message);
+                }
             }
         }
 
@@ -177,11 +203,19 @@ namespace Indico.AutomationAnywhere.Connector
                 parsedChanges = JObject.Parse(changes);
             }
 
-            var jobResult = Task.Run(() => SubmitReviewAsync(submissionId, parsedChanges, rejected, forceComplete))
-                .GetAwaiter()
-                .GetResult();
+            try
+            {
+                var jobResult = Task.Run(() => SubmitReviewAsync(submissionId, parsedChanges, rejected, forceComplete))
+                        .GetAwaiter()
+                        .GetResult();
 
-            return jobResult.ToString();
+                return jobResult.ToString();
+            }
+            catch (System.Exception ex)
+            {
+                //AA doesn't understand custom exception types and the only important thing is message, so method catches all exceptions and throw new generic one with the correct message.
+                throw new System.Exception(ex.Message);
+            }
         }
 
         private async Task<JObject> SubmitReviewAsync(int submissionId, JObject changes, bool rejected, bool? forceComplete)
