@@ -45,7 +45,7 @@ namespace Indico.AutomationAnywhere.Connector
         {
             if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(uri))
             {
-                throw new ArgumentNullException("Provide token and host parameters.");
+                throw new ArgumentException("Provide token and host parameters.");
             }
 
             if (!uri.StartsWith("http"))
