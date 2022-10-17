@@ -11,6 +11,7 @@ using IndicoV2.Submissions.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 
 namespace Indico.AutomationAnywhere.Connector
 {
@@ -58,6 +59,41 @@ namespace Indico.AutomationAnywhere.Connector
             _submissionResultAwaiter = client.GetSubmissionResultAwaiter();
             _reviewsClient = client.Reviews();
             _jobAwaiter = client.JobAwaiter();
+        }
+
+        /// <summary>
+        /// Init method if parameters are passed in as a dictionary
+        /// </summary>
+        /// <param name="input"></param>
+        /// <exception cref="ArgumentException"></exception>
+        public void Init(Dictionary<string,object> input)
+        {
+            if (input.ContainsKey("uri") && input.ContainsKey("token"))
+            {
+                var token = (string)input["token"];
+                var uri = (string)input["uri"];
+                if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(uri))
+                {
+                    throw new ArgumentException("Provide token and host parameters.");
+                }
+
+                if (!uri.StartsWith("http"))
+                {
+                    throw new ArgumentException("Please provide valid host url that starts with http or https");
+                }
+
+                var client = new IndicoV2.IndicoClient(token, new Uri(uri));
+                _submissionsClient = client.Submissions();
+                _submissionResultAwaiter = client.GetSubmissionResultAwaiter();
+                _reviewsClient = client.Reviews();
+                _jobAwaiter = client.JobAwaiter();
+            }
+
+            else
+            {
+                throw new ArgumentException("Provide token and host parameters.");
+            }
+            
         }
 
         public int[] WorkflowSubmission(string[] filepaths, string[] uris, int workflowId)
